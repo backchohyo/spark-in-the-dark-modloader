@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    빌드: dotnet build -c Release
+    게임이 다른 곳에 설치돼 있으면: dotnet build -c Release -p:GameDir="D:/Games/Spark in the Dark"
+    게임의 Managed 폴더 DLL 을 참조해서 Unity Mono(.NET 4.x)용으로 빌드합니다. (게임 DLL 은 저장소에 포함하지 않음)
+  -->
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>ModLoader</AssemblyName>
+    <RootNamespace>ModLoader</RootNamespace>
+    <LangVersion>9</LangVersion>
+    <Nullable>disable</Nullable>
+    <Optimize>true</Optimize>
+    <NoStdLib>true</NoStdLib>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin/</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CS0618;CS0649;CS0169;CS0414;CS1591;CS0436</NoWarn>
+    <GameDir Condition="'$(GameDir)' == ''">C:/Program Files (x86)/Steam/steamapps/common/Spark in the Dark</GameDir>
+    <GameManaged>$(GameDir)/Spark in the Dark_Data/Managed</GameManaged>
+    <!-- .NET Framework 개발자 팩 없이도 게임의 mscorlib 로 빌드되게 -->
+    <FrameworkPathOverride>$(GameManaged)</FrameworkPathOverride>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src/**/*.cs" />
+    <!-- Mono.Cecil 0.11.5 소스를 함께 컴파일해서 ModLoader.dll 하나로 만든다 (git submodule: external/cecil) -->
+    <Compile Include="external/cecil/Mono/*.cs" />
+    <Compile Include="external/cecil/Mono.Cecil/*.cs" Exclude="external/cecil/Mono.Cecil/AssemblyInfo.cs" />
+    <Compile Include="external/cecil/Mono.Cecil.Cil/*.cs" />
+    <Compile Include="external/cecil/Mono.Cecil.Metadata/*.cs" />
+    <Compile Include="external/cecil/Mono.Cecil.PE/*.cs" />
+    <Compile Include="external/cecil/Mono.Collections.Generic/*.cs" />
+    <Compile Include="external/cecil/Mono.Security.Cryptography/*.cs" />
+    <Compile Include="external/cecil/rocks/Mono.Cecil.Rocks/MethodBodyRocks.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib"><HintPath>$(GameManaged)/mscorlib.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="netstandard"><HintPath>$(GameManaged)/netstandard.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System"><HintPath>$(GameManaged)/System.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System.Core"><HintPath>$(GameManaged)/System.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(GameManaged)/UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UI"><HintPath>$(GameManaged)/UnityEngine.UI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(GameManaged)/UnityEngine.IMGUIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(GameManaged)/UnityEngine.TextRenderingModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UIModule"><HintPath>$(GameManaged)/UnityEngine.UIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule"><HintPath>$(GameManaged)/UnityEngine.JSONSerializeModule.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>
