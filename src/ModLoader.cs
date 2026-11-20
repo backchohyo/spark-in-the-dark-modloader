@@ -89,11 +89,12 @@ namespace ModLoader
 
     public static class Loader
     {
-        public const string Version = "1.6.0";
+        public const string Version = "1.6.1";
         public const string ConfigName = "ModLoader.cfg";
         public static readonly List<ModEntry> Mods = new List<ModEntry>();
         public static string ModsDir { get { return _modsDir; } }
         static string _logPath;
+        static System.Threading.Mutex _logMutex;
         static readonly Dictionary<string, Assembly> Loaded = new Dictionary<string, Assembly>(StringComparer.OrdinalIgnoreCase);
         static string _modsDir;
 
@@ -152,7 +153,16 @@ namespace ModLoader
             string gameDir = Path.GetDirectoryName(exe);
             _modsDir = Path.Combine(gameDir, "Mods");
             if (!Directory.Exists(_modsDir)) return;
-            _logPath = Path.Combine(_modsDir, "ModLoader.log");
+            // 같은 PC 에서 게임을 여러 개 켜면 기록 파일을 따로 쓴다 (ModLoader.log, ModLoader_2.log ...)
+            int inst = 1;
+            for (int i = 1; i <= 8; i++)
+            {
+                bool created;
+                var m = new System.Threading.Mutex(true, "Local\\SparkModLoader_Log_" + i, out created);
+                if (created) { _logMutex = m; inst = i; break; }
+                m.Dispose();
+            }
+            _logPath = Path.Combine(_modsDir, inst == 1 ? "ModLoader.log" : "ModLoader_" + inst + ".log");
             try { File.WriteAllText(_logPath, "", new UTF8Encoding(false)); } catch { }
             Log("Spark in the Dark 모드 로더 v" + Version);
 
